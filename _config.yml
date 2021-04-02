@@ -9,7 +9,7 @@ name: MOndBlog
 author: Milan Ondrašovič
 
 # Short bio or description (displayed in the header)
-description: A personal blog about computer vision, deep learning, math, interesting literature and some random stuff, too.
+description: Blog about computer vision, deep learning, math, and some random stuff, too.
 
 # URL of your avatar or profile pic (you could use your GitHub profile pic)
 avatar: /images/author_avatar.png

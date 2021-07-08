@@ -4,15 +4,4 @@ title: About
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
-
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
-
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
-
-
-[jekyll-organization]: https://github.com/jekyll
+_**Milan Ondrašovič**_ received his *B.Sc.* and *M.Sc.* degrees from the *University of Žilina* in *applied informatics* in 2017 and 2019, respectively. Both of his final theses heavily involved **computer vision**. As of 2021, he is pursuing a *Ph.D.* degree at the University of Žilina. His research topic is **deep machine learning** applied to **visual object tracking**.

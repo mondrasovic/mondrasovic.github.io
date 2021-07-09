@@ -30,7 +30,7 @@ linkedin: milan-ondrašovič-3a5b6a1a4
 
 # Build settings
 markdown: kramdown
-mathjax: true
+use_mathjax: true
 # Overridden by my custom theme.
 # theme: minima
 plugins:

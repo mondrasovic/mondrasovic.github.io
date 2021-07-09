@@ -1,0 +1,1 @@
+# Jekyll static website for a personal blog

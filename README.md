@@ -2,6 +2,18 @@
 
 ## Setting up the site
 
+Install **jekyll**:
+```
+apt-get -y install ruby-full build-essential make
+```
+
+Install **bundler**:
+```
+gem install jekyll bundler
+```
+
+## MathJax
+
 To enable the **MathJax**, add
 ```
 # Build settings

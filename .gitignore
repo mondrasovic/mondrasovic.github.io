@@ -1,1 +1,10 @@
+<<<<<<< HEAD
 .vscode
+=======
+vscode
+_site
+.sass-cache
+.jekyll-cache
+.jekyll-metadata
+vendor
+>>>>>>> 2090aa0fa2e5b946e5c75c6db58bb13c8f65008f

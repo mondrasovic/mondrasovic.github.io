@@ -283,15 +283,15 @@ Here is a short sentence in the introduction.\DIFdelbegin \DIFdel{This sentence 
 
 When compiled and rendered, we have a nice looking PDF. To demonstrate, here we have the three files in the same order rendered:
 
-| ![original-LaTeX-document]({{ site.baseurl }}images/document_render_orig.jpg){:class="img-responsive"} |
+| ![original-LaTeX-document]({{ site.baseurl }}/images/document_render_orig.jpg){:class="img-responsive"} |
 |:--:|
 | *Original LaTeX document.* |
 
-| ![new-LaTeX-document]({{ site.baseurl }}images/document_render_new.jpg){:class="img-responsive"} |
+| ![new-LaTeX-document]({{ site.baseurl }}/images/document_render_new.jpg){:class="img-responsive"} |
 |:--:|
 | *New (modified) LaTeX document.* |
 
-| ![diff-LaTeX-document]({{ site.baseurl }}images/document_render_diff.jpg){:class="img-responsive"} |
+| ![diff-LaTeX-document]({{ site.baseurl }}/images/document_render_diff.jpg){:class="img-responsive"} |
 |:--:|
 | *Diff-like LaTeX document for revision.* |
 

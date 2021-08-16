@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>My paper writing pipeline using LaTeX | MOnd Blog</title>
+<meta name="generator" content="Jekyll v3.9.0" />
+<meta property="og:title" content="My paper writing pipeline using LaTeX" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="In this post, I show how I approach writing research papers using LaTeX." />
+<meta property="og:description" content="In this post, I show how I approach writing research papers using LaTeX." />
+<link rel="canonical" href="http://localhost:4000/tutorial/2021/07/09/my_paper_writing_pipeline.html" />
+<meta property="og:url" content="http://localhost:4000/tutorial/2021/07/09/my_paper_writing_pipeline.html" />
+<meta property="og:site_name" content="MOnd Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-07-09T10:00:00+02:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="My paper writing pipeline using LaTeX" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","headline":"My paper writing pipeline using LaTeX","dateModified":"2021-07-09T10:00:00+02:00","datePublished":"2021-07-09T10:00:00+02:00","url":"http://localhost:4000/tutorial/2021/07/09/my_paper_writing_pipeline.html","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/tutorial/2021/07/09/my_paper_writing_pipeline.html"},"description":"In this post, I show how I approach writing research papers using LaTeX.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="MOnd Blog" /><!-- From https://github.com/fastai/fast_template/blob/6f72d2957a4e302e437f4437dd6a1e5a1f14274a/_includes/head.html -->
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+    <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"> </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+          ]}
+        );
+      });
+    </script>
+  
+</head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">MOnd Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">My paper writing pipeline using LaTeX</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2021-07-09T10:00:00+02:00" itemprop="datePublished">Jul 9, 2021
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <h1 id="introduction">Introduction</h1>
+
+<p>In this post, I want to share my pipeline that I use for writing research papers and then discussing them with my Ph.D. supervisor. The primary motivation to write this post and to actually implement the described steps in the first place was to make communication with my supervisor who does not use <a href="https://www.latex-project.org/">LaTeX</a> as smooth as possible. He also supervised my bachelor’s as well as master’s theses that I wrote using <a href="https://www.microsoft.com/sk-sk/microsoft-365/word">MS Word</a>. Thanks to revision system, our discussions about changes were flawless and the whole process was quick. However, since the beginning of my Ph.D. studies, I have relied solely on LaTeX to write my papers (for obvious reasons) and to produce the final PDF file. Thus, we ended up adding suggestions, comments, and highlights of modifications to the PDF file itself, which was cumbersome. Moreover, little changes in phrasing or just spelling corrections could hardly be caught. This got me thinking whether there was a revision system for <a href="https://www.latex-project.org/">LaTeX</a> that provided at least similar capabilities to <a href="https://www.microsoft.com/sk-sk/microsoft-365/word">MS Word</a>. It turned out, there was such a service as part of paid <a href="https://www.overleaf.com/">Overleaf</a> license, but I wanted something free. To this end, I created my own process to circumvent the obstacles of having to highlight changes manually in the PDF file. I managed to resolve the problem of producing <em>diff-like</em> PDF-file based on LaTeX sources completely free and quickly. With this in mind, the <strong>contribution</strong> of this tutorial is the following:</p>
+<ul>
+  <li>I show how to effectively <strong>incorporate <em>diff</em> mechanism when using</strong> <a href="https://www.latex-project.org/">LaTeX</a> (similar to revision system in <a href="https://www.microsoft.com/sk-sk/microsoft-365/word">MS Word</a>) to easily disseminate the modifications with other people, even with the ones who do not use <a href="https://www.latex-project.org/">LaTeX</a> by themselves.</li>
+  <li>I provide an <strong>example of my personal work pipeline</strong> for inspiration to see how I approach writing research papers.</li>
+</ul>
+
+<h1 id="prerequisites">Prerequisites</h1>
+
+<p>I am going to assume that the reader is knows how to use LaTeX, either remotely or locally. I think that unless the reader has enough experience with LaTeX, then my motivation and subsequent recommendation would not be fully understood. To make things easier and to actually describe my current work pipeline, I am going to demonstrate the process using <a href="https://www.overleaf.com/">Overleaf</a>. Despite the fact that <a href="https://www.overleaf.com/">Overleaf</a> is a perfect tool for remote work, we still need to exploit local applications to produce diffs.</p>
+
+<p>I recommend the user to install <code class="language-plaintext highlighter-rouge">texlive-full</code>.</p>
+
+<p>The two tools that we are going to rely on are:</p>
+
+<ul>
+  <li><a href="https://www.ctan.org/pkg/latexpand">latexpand</a> - Latexpand is a Perl script that simply replaces <code class="language-plaintext highlighter-rouge">\input</code> and <code class="language-plaintext highlighter-rouge">\include</code> commands with the content of the input or included file.</li>
+  <li><a href="https://www.ctan.org/pkg/latexdiff">latexdiff</a> - Latexdiff is a Perl script for visual mark up and revision of significant differences between two LaTeX files. Various options are available for visual markup using standard LaTeX packages such as color. Changes not directly affecting visible text, for example in formatting commands, are still marked in the LaTeX source. A rudimentary revision facilility is provided by another Perl script, latexrevise, which accepts or rejects all changes. Manual editing of the difference file can be used to override this default behaviour and accept or reject selected changes only.</li>
+</ul>
+
+<h1 id="work-pipeline-demonstration">Work Pipeline Demonstration</h1>
+
+<p>I prefer to separate the contents of the paper into multiple source files. I am a programmer, and I use LaTeX due to its programming-like approach (among other things). I guess a separation of concerns and reduction of coupling are well-established manners that programmers should adhere to all the time. Concerning this, I always (give or take) create the following structure:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>main.tex
+\sections\introduction.tex
+\sections\related_work.tex
+\sections\methodology.tex
+\sections\experiments.tex
+\sections\conclusion.tex
+</code></pre></div></div>
+
+<p>Obviously, the structure would change a little from paper the paper, but you get the gist.</p>
+
+<p>The main file thus contains all these sections included like this:</p>
+
+<div class="language-latex highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">\begin{document}</span>
+
+# Other statements...
+
+<span class="k">\input</span><span class="p">{</span>sections/introduction<span class="p">}</span>
+<span class="k">\input</span><span class="p">{</span>sections/related<span class="p">_</span>work<span class="p">}</span>
+<span class="k">\input</span><span class="p">{</span>sections/methodology<span class="p">}</span>
+<span class="k">\input</span><span class="p">{</span>sections/experiments<span class="p">}</span>
+<span class="k">\input</span><span class="p">{</span>sections/conclusion<span class="p">}</span>
+
+<span class="nt">\end{document}</span>
+</code></pre></div></div>
+
+<p>The reason why I am showing this hierarchy is that in order to produce the <em>diff</em> file, the <code class="language-plaintext highlighter-rouge">latexdiff</code> command requires old and new file. However, we now have multiple files, so we will have to merge them prior to finding differences. Just for the record, having to produce a single may also be required for certain publications, so that may one more reason for me to show you a way to do it.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<h1 id="references">References</h1>
+
+  </div><a class="u-url" href="/tutorial/2021/07/09/my_paper_writing_pipeline.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">MOnd Blog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">MOnd Blog</li><li><a class="u-email" href="mailto:milan.ondrasovic@gmail.com">milan.ondrasovic@gmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/mondrasovic"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">mondrasovic</span></a></li><li><a href="https://www.twitter.com/MOndrasovic"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">MOndrasovic</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Personal blog about computer vision, deep learning, math, and some random stuff, too.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

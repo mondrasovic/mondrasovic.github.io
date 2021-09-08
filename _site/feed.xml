@@ -1,4 +1,37 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2021-08-16T12:35:08+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">MOnd Blog</title><subtitle>Personal blog about computer vision, deep learning, math, and some random stuff, too.</subtitle><entry><title type="html">My paper “Siamese Visual Object Tracking - A Survey” is out</title><link href="http://localhost:4000/research/2021/08/16/siamese_tracking_survey_paper.html" rel="alternate" type="text/html" title="My paper “Siamese Visual Object Tracking - A Survey” is out" /><published>2021-08-16T10:00:00+02:00</published><updated>2021-08-16T10:00:00+02:00</updated><id>http://localhost:4000/research/2021/08/16/siamese_tracking_survey_paper</id><content type="html" xml:base="http://localhost:4000/research/2021/08/16/siamese_tracking_survey_paper.html">&lt;h1 id=&quot;paper-information&quot;&gt;Paper information&lt;/h1&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2021-09-08T13:40:10+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">MOnd Blog</title><subtitle>Personal blog about computer vision, deep learning, math, and some random stuff, too.</subtitle><entry><title type="html">My paper “Homography Ranking Based on Multiple Groups of Point Correspondences” is out</title><link href="http://localhost:4000/research/2021/09/08/homography_ranking_paper.html" rel="alternate" type="text/html" title="My paper “Homography Ranking Based on Multiple Groups of Point Correspondences” is out" /><published>2021-09-08T10:00:00+02:00</published><updated>2021-09-08T10:00:00+02:00</updated><id>http://localhost:4000/research/2021/09/08/homography_ranking_paper</id><content type="html" xml:base="http://localhost:4000/research/2021/09/08/homography_ranking_paper.html">&lt;h1 id=&quot;paper-information&quot;&gt;Paper information&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Name&lt;/strong&gt;: &lt;a href=&quot;https://www.mdpi.com/1424-8220/21/17/5752&quot;&gt;Homography Ranking Based on Multiple Groups of Point Correspondences&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Authors&lt;/strong&gt;: Milan Ondrašovič, Peter Tarábek&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Journal&lt;/strong&gt;: &lt;a href=&quot;https://www.mdpi.com/journal/sensors&quot;&gt;MDPI Sensors&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;abstract&quot;&gt;Abstract&lt;/h1&gt;
+
+&lt;p&gt;&lt;em&gt;Homography mapping is often exploited to remove perspective distortion in images and can be estimated using point correspondences of a known object (marker). We focus on scenarios with multiple markers placed on the same plane if their relative positions in the world are unknown, causing an indeterminate point correspondence. Existing approaches may only estimate an isolated homography for each marker and cannot determine which homography achieves the best reprojection over the entire image. We thus propose a method to rank isolated homographies obtained from multiple distinct markers to select the best homography. This method extends existing approaches in the post-processing stage, provided that the point correspondences are available and that the markers differ only by similarity transformation after rectification. We demonstrate the robustness of our method using a synthetic dataset and show an approximately 60% relative improvement over the random selection strategy based on the homography estimation from the OpenCV library.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;cite-my-work&quot;&gt;Cite my work&lt;/h1&gt;
+
+&lt;h2 id=&quot;text-format&quot;&gt;Text format&lt;/h2&gt;
+
+&lt;p&gt;Ondrašovič, M.; Tarábek, P. &lt;em&gt;Homography Ranking Based on Multiple Groups of Point Correspondences&lt;/em&gt;. Sensors 2021, 21, 5752. https://doi.org/10.3390/s21175752&lt;/p&gt;
+
+&lt;h2 id=&quot;bibtext-format&quot;&gt;BibText format&lt;/h2&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;@Article{s21175752,
+    AUTHOR = {Ondrašovič, Milan and Tarábek, Peter},
+    TITLE = {Homography Ranking Based on Multiple Groups of Point Correspondences},
+    JOURNAL = {Sensors},
+    VOLUME = {21},
+    YEAR = {2021},
+    NUMBER = {17},
+    ARTICLE-NUMBER = {5752},
+    URL = {https://www.mdpi.com/1424-8220/21/17/5752},
+    ISSN = {1424-8220},
+    ABSTRACT = {Homography mapping is often exploited to remove perspective distortion in images and can be estimated using point correspondences of a known object (marker). We focus on scenarios with multiple markers placed on the same plane if their relative positions in the world are unknown, causing an indeterminate point correspondence. Existing approaches may only estimate an isolated homography for each marker and cannot determine which homography achieves the best reprojection over the entire image. We thus propose a method to rank isolated homographies obtained from multiple distinct markers to select the best homography. This method extends existing approaches in the post-processing stage, provided that the point correspondences are available and that the markers differ only by similarity transformation after rectification. We demonstrate the robustness of our method using a synthetic dataset and show an approximately 60% relative improvement over the random selection strategy based on the homography estimation from the OpenCV library.},
+    DOI = {10.3390/s21175752}
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name></name></author><category term="research" /><summary type="html">A short post about my recently published MDPI Sensors journal paper.</summary></entry><entry><title type="html">My paper “Siamese Visual Object Tracking - A Survey” is out</title><link href="http://localhost:4000/research/2021/08/16/siamese_tracking_survey_paper.html" rel="alternate" type="text/html" title="My paper “Siamese Visual Object Tracking - A Survey” is out" /><published>2021-08-16T10:00:00+02:00</published><updated>2021-08-16T10:00:00+02:00</updated><id>http://localhost:4000/research/2021/08/16/siamese_tracking_survey_paper</id><content type="html" xml:base="http://localhost:4000/research/2021/08/16/siamese_tracking_survey_paper.html">&lt;h1 id=&quot;paper-information&quot;&gt;Paper information&lt;/h1&gt;
 
 &lt;ul&gt;
   &lt;li&gt;&lt;strong&gt;Name&lt;/strong&gt;: &lt;a href=&quot;https://ieeexplore.ieee.org/document/9503425&quot;&gt;Siamese Visual Object Tracking: A Survey&lt;/a&gt;&lt;/li&gt;
@@ -19,14 +52,15 @@
 &lt;h2 id=&quot;bibtext-format&quot;&gt;BibText format&lt;/h2&gt;
 
 &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;@ARTICLE{9503425,
-  author={Ondrašovič, Milan and Tarábek, Peter},
-  journal={IEEE Access}, 
-  title={Siamese Visual Object Tracking: A Survey}, 
-  year={2021},
-  volume={9},
-  number={},
-  pages={110149-110172},
-  doi={10.1109/ACCESS.2021.3101988}}
+    author={Ondrašovič, Milan and Tarábek, Peter},
+    journal={IEEE Access}, 
+    title={Siamese Visual Object Tracking: A Survey}, 
+    year={2021},
+    volume={9},
+    number={},
+    pages={110149-110172},
+    doi={10.1109/ACCESS.2021.3101988}
+}
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name></name></author><category term="research" /><summary type="html">A short post about my recently published IEEE Access journal paper.</summary></entry><entry><title type="html">My paper “Object Position Estimation from a Single Moving Camera” is out</title><link href="http://localhost:4000/research/2021/08/15/object_position_estimation_paper.html" rel="alternate" type="text/html" title="My paper “Object Position Estimation from a Single Moving Camera” is out" /><published>2021-08-15T10:00:00+02:00</published><updated>2021-08-15T10:00:00+02:00</updated><id>http://localhost:4000/research/2021/08/15/object_position_estimation_paper</id><content type="html" xml:base="http://localhost:4000/research/2021/08/15/object_position_estimation_paper.html">&lt;h1 id=&quot;paper-information&quot;&gt;Paper information&lt;/h1&gt;
 
 &lt;ul&gt;
@@ -50,14 +84,15 @@
 &lt;h2 id=&quot;bibtext-format&quot;&gt;BibText format&lt;/h2&gt;
 
 &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;@INPROCEEDINGS{9497523,
-  author={Ondrašovič, Milan and Tarábek, Peter and Šuch, Ondrej},
-  booktitle={2021 International Conference on Information and Digital Technologies (IDT)}, 
-  title={Object Position Estimation from a Single Moving Camera}, 
-  year={2021},
-  volume={},
-  number={},
-  pages={31-37},
-  doi={10.1109/IDT52577.2021.9497523}}
+    author={Ondrašovič, Milan and Tarábek, Peter and Šuch, Ondrej},
+    booktitle={2021 International Conference on Information and Digital Technologies (IDT)}, 
+    title={Object Position Estimation from a Single Moving Camera}, 
+    year={2021},
+    volume={},
+    number={},
+    pages={31-37},
+    doi={10.1109/IDT52577.2021.9497523}
+}
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name></name></author><category term="research" /><summary type="html">A short post about my recently published IDT2021 conference paper.</summary></entry><entry><title type="html">My paper writing pipeline using LaTeX</title><link href="http://localhost:4000/tutorial/2021/08/09/my_paper_writing_pipeline.html" rel="alternate" type="text/html" title="My paper writing pipeline using LaTeX" /><published>2021-08-09T10:00:00+02:00</published><updated>2021-08-09T10:00:00+02:00</updated><id>http://localhost:4000/tutorial/2021/08/09/my_paper_writing_pipeline</id><content type="html" xml:base="http://localhost:4000/tutorial/2021/08/09/my_paper_writing_pipeline.html">&lt;h1 id=&quot;introduction&quot;&gt;Introduction&lt;/h1&gt;
 
 &lt;p&gt;In this post, I want to share the pipeline that I use for writing research papers and then discussing them with my Ph.D. supervisor. The primary motivation to write this post and was to make communication with my supervisor who does not use &lt;a href=&quot;https://www.latex-project.org/&quot;&gt;LaTeX&lt;/a&gt; as smooth as possible. He also supervised my bachelor’s as well as master’s theses that I wrote using &lt;a href=&quot;https://www.microsoft.com/sk-sk/microsoft-365/word&quot;&gt;MS Word&lt;/a&gt;. Thanks to the revision system, our discussions about changes were flawless and the whole process was quick. However, since the beginning of my Ph.D. studies in the applied computer science program, I have relied solely on LaTeX to write my papers (for obvious reasons) and to produce the final PDF file. Thus, we ended up adding suggestions, comments, and highlights of modifications to the PDF file itself, which was rather cumbersome. Moreover, little changes in phrasing or just spelling corrections could hardly be caught. This got me thinking about whether there was a revision system for LaTeX that provided at least similar capabilities to MS Word. It turned out, there was such a service as part of paid &lt;a href=&quot;https://www.overleaf.com/&quot;&gt;Overleaf&lt;/a&gt; license, but I wanted something free. To this end, I created my process to circumvent the obstacles of having to highlight changes manually in the PDF file. I managed to resolve the problem of producing &lt;em&gt;diff-like&lt;/em&gt; PDF files based on LaTeX sources completely free and quickly. With this in mind, the main &lt;strong&gt;contribution&lt;/strong&gt; of this tutorial is as follows:&lt;/p&gt;

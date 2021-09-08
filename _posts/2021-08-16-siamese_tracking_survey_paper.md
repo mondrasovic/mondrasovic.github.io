@@ -28,12 +28,13 @@ M. Ondrašovič and P. Tarábek, "*Siamese Visual Object Tracking: A Survey,*" i
 
 ```
 @ARTICLE{9503425,
-  author={Ondrašovič, Milan and Tarábek, Peter},
-  journal={IEEE Access}, 
-  title={Siamese Visual Object Tracking: A Survey}, 
-  year={2021},
-  volume={9},
-  number={},
-  pages={110149-110172},
-  doi={10.1109/ACCESS.2021.3101988}}
+    author={Ondrašovič, Milan and Tarábek, Peter},
+    journal={IEEE Access}, 
+    title={Siamese Visual Object Tracking: A Survey}, 
+    year={2021},
+    volume={9},
+    number={},
+    pages={110149-110172},
+    doi={10.1109/ACCESS.2021.3101988}
+}
 ```

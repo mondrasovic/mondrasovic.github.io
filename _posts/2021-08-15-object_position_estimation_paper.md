@@ -30,12 +30,13 @@ M. Ondrašovič, P. Tarábek and O. Šuch, "*Object Position Estimation from a S
 
 ```
 @INPROCEEDINGS{9497523,
-  author={Ondrašovič, Milan and Tarábek, Peter and Šuch, Ondrej},
-  booktitle={2021 International Conference on Information and Digital Technologies (IDT)}, 
-  title={Object Position Estimation from a Single Moving Camera}, 
-  year={2021},
-  volume={},
-  number={},
-  pages={31-37},
-  doi={10.1109/IDT52577.2021.9497523}}
+    author={Ondrašovič, Milan and Tarábek, Peter and Šuch, Ondrej},
+    booktitle={2021 International Conference on Information and Digital Technologies (IDT)}, 
+    title={Object Position Estimation from a Single Moving Camera}, 
+    year={2021},
+    volume={},
+    number={},
+    pages={31-37},
+    doi={10.1109/IDT52577.2021.9497523}
+}
 ```

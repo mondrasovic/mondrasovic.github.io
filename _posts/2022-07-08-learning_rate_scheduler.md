@@ -39,9 +39,11 @@ At the beginning of every epoch, this callback gets the updated learning rate va
 Let $B$ be the **base learning rate**, $T$ be the **target learning rate**, $N$ be the **total number of epochs** and $W$ be the **number of warm-up epochs**. The aim is to find a parameter $\lambda$, i.e., the **decay rate**, so that our learning rate scheduler equals $B$ for all the warm-up epochs including the first "real" epochs and after the $N - \left (W + 1 \right)$ epochs it reaches the value of $T$.
 
 Generally speaking, we want to find a function that takes two parameters, the current **epoch index** $i$ (indexed from $0$) and the current **learning rate** $r$ and returns a **new learning rate** $\tilde{r}$. So,
+
 $$f \left( i, r \right) = \tilde{r}.$$
 
 Considering the aforementioned requirements, the **decay rate** $\lambda$ is equal to
+
 $$\lambda = \frac{\log \left( \frac{T}{B} \right)}{E - \left(W + 1 \right)}.$$
 
 Thus, the sought **function** $f \left( \cdot \right)$ can be defined as

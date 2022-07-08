@@ -1,24 +1,182 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2021-09-08T13:40:10+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">MOnd Blog</title><subtitle>Personal blog about computer vision, deep learning, math, and some random stuff, too.</subtitle><entry><title type="html">My paper “Homography Ranking Based on Multiple Groups of Point Correspondences” is out</title><link href="http://localhost:4000/research/2021/09/08/homography_ranking_paper.html" rel="alternate" type="text/html" title="My paper “Homography Ranking Based on Multiple Groups of Point Correspondences” is out" /><published>2021-09-08T10:00:00+02:00</published><updated>2021-09-08T10:00:00+02:00</updated><id>http://localhost:4000/research/2021/09/08/homography_ranking_paper</id><content type="html" xml:base="http://localhost:4000/research/2021/09/08/homography_ranking_paper.html">&lt;h1 id=&quot;paper-information&quot;&gt;Paper information&lt;/h1&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2022-07-08T09:48:54+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">MOnd Blog</title><subtitle>Personal blog about computer vision, deep learning, math, and some random stuff, too.</subtitle><entry><title type="html">Exponential Learning Rate Scheduler</title><link href="http://localhost:4000/research/2022/07/08/learning_rate_scheduler.html" rel="alternate" type="text/html" title="Exponential Learning Rate Scheduler" /><published>2022-07-08T09:00:00+02:00</published><updated>2022-07-08T09:00:00+02:00</updated><id>http://localhost:4000/research/2022/07/08/learning_rate_scheduler</id><content type="html" xml:base="http://localhost:4000/research/2022/07/08/learning_rate_scheduler.html">&lt;h1 id=&quot;motivation&quot;&gt;Motivation&lt;/h1&gt;
 
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;Name&lt;/strong&gt;: &lt;a href=&quot;https://www.mdpi.com/1424-8220/21/17/5752&quot;&gt;Homography Ranking Based on Multiple Groups of Point Correspondences&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Authors&lt;/strong&gt;: Milan Ondrašovič, Peter Tarábek&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Journal&lt;/strong&gt;: &lt;a href=&quot;https://www.mdpi.com/journal/sensors&quot;&gt;MDPI Sensors&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+&lt;p&gt;When training &lt;strong&gt;deep neural networks&lt;/strong&gt;, &lt;strong&gt;learning rate&lt;/strong&gt; is arguably a hyperparameter of paramount importance. However, in many scenarios, altering the learning rate during the model training may help not only help stabilize the training but also help find better local minima. There are various ways to approach so-called &lt;strong&gt;scheduling&lt;/strong&gt; the &lt;strong&gt;learning rate&lt;/strong&gt; during the training. Deep learning frameworks such as &lt;a href=&quot;https://pytorch.org/&quot;&gt;PyTorch&lt;/a&gt; or &lt;a href=&quot;https://www.tensorflow.org/&quot;&gt;TensorFlow&lt;/a&gt; provide basic infrastructure that supports this functionality. One of the approaches is based on using &lt;a href=&quot;https://en.wikipedia.org/wiki/Exponential_decay&quot;&gt;exponential decay&lt;/a&gt;.&lt;/p&gt;
 
-&lt;h1 id=&quot;abstract&quot;&gt;Abstract&lt;/h1&gt;
+&lt;p&gt;This short post aims to provide a simple guide regarding how to derive the necessary parameters for a learning rate scheduler using exponential decay given that we know our &lt;strong&gt;base learning rate&lt;/strong&gt;, &lt;strong&gt;target learning rate&lt;/strong&gt; we want to reach, the &lt;strong&gt;total number of epochs&lt;/strong&gt; as well as the &lt;strong&gt;number of warm-up epochs&lt;/strong&gt; (in which the learning rate remains untouched).&lt;/p&gt;
 
-&lt;p&gt;&lt;em&gt;Homography mapping is often exploited to remove perspective distortion in images and can be estimated using point correspondences of a known object (marker). We focus on scenarios with multiple markers placed on the same plane if their relative positions in the world are unknown, causing an indeterminate point correspondence. Existing approaches may only estimate an isolated homography for each marker and cannot determine which homography achieves the best reprojection over the entire image. We thus propose a method to rank isolated homographies obtained from multiple distinct markers to select the best homography. This method extends existing approaches in the post-processing stage, provided that the point correspondences are available and that the markers differ only by similarity transformation after rectification. We demonstrate the robustness of our method using a synthetic dataset and show an approximately 60% relative improvement over the random selection strategy based on the homography estimation from the OpenCV library.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Note: To be honest, I had to use re-derive this formula multiple times. Thus, I decided to save the processes as part of a blog post for future reference at least for me, if not for anyone else.&lt;/em&gt;&lt;/p&gt;
 
-&lt;h1 id=&quot;cite-my-work&quot;&gt;Cite my work&lt;/h1&gt;
+&lt;p&gt;In this post, we will use the &lt;strong&gt;TensorFlow&lt;/strong&gt; deep learning framework. Nevertheless, the reasoning and methodology are very general and can be applied to any scenario involving finding the parameters of a function for exponential decay.&lt;/p&gt;
 
-&lt;h2 id=&quot;text-format&quot;&gt;Text format&lt;/h2&gt;
+&lt;p&gt;More specifically, we will strive to implement the scheduling &lt;strong&gt;function&lt;/strong&gt; for the &lt;a href=&quot;https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/LearningRateScheduler&quot;&gt;LearningRateScheduler&lt;/a&gt; class representing a &lt;a href=&quot;https://en.wikipedia.org/wiki/Callback_(computer_programming)&quot;&gt;callback&lt;/a&gt; function. Its instance can be constructed as&lt;/p&gt;
 
-&lt;p&gt;Ondrašovič, M.; Tarábek, P. &lt;em&gt;Homography Ranking Based on Multiple Groups of Point Correspondences&lt;/em&gt;. Sensors 2021, 21, 5752. https://doi.org/10.3390/s21175752&lt;/p&gt;
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;tf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;keras&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;callbacks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;LearningRateScheduler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;schedule&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;verbose&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;h2 id=&quot;bibtext-format&quot;&gt;BibText format&lt;/h2&gt;
+&lt;p&gt;The arguments are&lt;/p&gt;
 
-&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;@Article{s21175752,
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;argument&lt;/th&gt;
+      &lt;th&gt;description&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;schedule&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;a function that takes an epoch index (integer (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;int&lt;/code&gt;), indexed from $0$) and current learning rate (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;float&lt;/code&gt;) as inputs and returns a new learning rate as output (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;float&lt;/code&gt;).&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;verbose&lt;/code&gt;&lt;/td&gt;
+      &lt;td&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;int&lt;/code&gt;. $0$ - quiet, $1$ - update messages.&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;At the beginning of every epoch, this callback gets the updated learning rate value from the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;schedule&lt;/code&gt; function. Please, refer to the dedicated &lt;a href=&quot;https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/LearningRateScheduler&quot;&gt;documentation&lt;/a&gt; section for further details.&lt;/p&gt;
+
+&lt;h1 id=&quot;formula-derivation&quot;&gt;Formula Derivation&lt;/h1&gt;
+
+&lt;p&gt;Let $B$ be the &lt;strong&gt;base learning rate&lt;/strong&gt;, $T$ be the &lt;strong&gt;target learning rate&lt;/strong&gt;, $N$ be the &lt;strong&gt;total number of epochs&lt;/strong&gt; and $W$ be the &lt;strong&gt;number of warm-up epochs&lt;/strong&gt;. The aim is to find a parameter $\lambda$, i.e., the &lt;strong&gt;decay rate&lt;/strong&gt;, so that our learning rate scheduler equals $B$ for all the warm-up epochs including the first “real” epochs and after the $N - \left (W + 1 \right)$ epochs it reaches the value of $T$.&lt;/p&gt;
+
+&lt;p&gt;Generally speaking, we want to find a function that takes two parameters, the current &lt;strong&gt;epoch index&lt;/strong&gt; $i$ (indexed from $0$) and the current &lt;strong&gt;learning rate&lt;/strong&gt; $r$ and returns a &lt;strong&gt;new learning rate&lt;/strong&gt; $\tilde{r}$. So,
+\(f \left( i, r \right) = \tilde{r}.\)&lt;/p&gt;
+
+&lt;p&gt;Considering the aforementioned requirements, the &lt;strong&gt;decay rate&lt;/strong&gt; $\lambda$ is equal to
+\(\lambda = \frac{\log \left( \frac{T}{B} \right)}{E - \left(W + 1 \right)}.\)&lt;/p&gt;
+
+&lt;p&gt;Thus, the sought &lt;strong&gt;function&lt;/strong&gt; $f \left( \cdot \right)$ can be defined as&lt;/p&gt;
+
+\[f \left( i, r \right) =
+\begin{cases}
+    B \qquad &amp;amp; \text{if } i \leq W,\\
+    B \cdot e^{\lambda} \qquad &amp;amp; \text{otherwise}.
+\end{cases}\]
+
+&lt;h1 id=&quot;implementation&quot;&gt;Implementation&lt;/h1&gt;
+
+&lt;p&gt;The only required import is:&lt;/p&gt;
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;tensorflow&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tf&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The derived formula can be transformed into a Python implementation as follows&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;make_lr_scheduler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;base_lr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;target_lr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n_epochs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n_warmup_epochs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;n_update_epochs&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n_epochs&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n_warmup_epochs&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;decay_rate&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;target_lr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;base_lr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n_update_epochs&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;_scheduler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;epoch&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;epoch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n_warmup_epochs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;base_lr&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;exp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;decay_rate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_scheduler&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The above function creates another function which is then passed to the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;model.fit(...)&lt;/code&gt; method as a callback. Concretely, let &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;model&lt;/code&gt; be a TensorFlow &lt;a href=&quot;https://www.tensorflow.org/api_docs/python/tf/keras/Model&quot;&gt;model&lt;/a&gt; instance. When calling its &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fit()&lt;/code&gt; method, one of the parameters is &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;callbacks&lt;/code&gt;, a list of callback functions to be called during the training.&lt;/p&gt;
+
+&lt;p&gt;Assume we have the following variables in our &lt;strong&gt;configuration&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;BASE_LR&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;TARGET_LR&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;N_EPOCHS&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;N_WARMUP_EPOCHS&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Then, the &lt;strong&gt;learning rate scheduler&lt;/strong&gt; can be &lt;strong&gt;instantiated&lt;/strong&gt; and utilized during the training as&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;lr_scheduler_callback&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;make_lr_scheduler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;base_lr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BASE_LR&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;target_lr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TARGET_LR&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;n_epochs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N_EPOCHS&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;n_warmup_epochs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N_WARMUP_EPOCHS&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fit&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;train_dataset&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;epochs&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N_EPOCHS&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;callbacks&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;lr_scheduler_callback&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;implementation-verification&quot;&gt;Implementation Verification&lt;/h1&gt;
+
+&lt;p&gt;Here is a table that shows how the learning rate &lt;strong&gt;progresses&lt;/strong&gt; with respect to different parameters.&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;$B$&lt;/th&gt;
+      &lt;th&gt;$T$&lt;/th&gt;
+      &lt;th&gt;$N$&lt;/th&gt;
+      &lt;th&gt;$W$&lt;/th&gt;
+      &lt;th&gt;$i = 0$&lt;/th&gt;
+      &lt;th&gt;$i = 1$&lt;/th&gt;
+      &lt;th&gt;$i = 2$&lt;/th&gt;
+      &lt;th&gt;$i = 3$&lt;/th&gt;
+      &lt;th&gt;$i = 4$&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;$10^{-1}$&lt;/td&gt;
+      &lt;td&gt;$10^{-6}$&lt;/td&gt;
+      &lt;td&gt;$5$&lt;/td&gt;
+      &lt;td&gt;$0$&lt;/td&gt;
+      &lt;td&gt;$0.100000$&lt;/td&gt;
+      &lt;td&gt;$0.005623$&lt;/td&gt;
+      &lt;td&gt;$0.000316$&lt;/td&gt;
+      &lt;td&gt;$0.000018$&lt;/td&gt;
+      &lt;td&gt;$0.000001$&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;$10^{-2}$&lt;/td&gt;
+      &lt;td&gt;$10^{-4}$&lt;/td&gt;
+      &lt;td&gt;$5$&lt;/td&gt;
+      &lt;td&gt;$1$&lt;/td&gt;
+      &lt;td&gt;$0.010000$&lt;/td&gt;
+      &lt;td&gt;$0.010000$&lt;/td&gt;
+      &lt;td&gt;$0.002154$&lt;/td&gt;
+      &lt;td&gt;$0.000464$&lt;/td&gt;
+      &lt;td&gt;$0.000100$&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;$10^{-2}$&lt;/td&gt;
+      &lt;td&gt;$10^{-5}$&lt;/td&gt;
+      &lt;td&gt;$5$&lt;/td&gt;
+      &lt;td&gt;$2$&lt;/td&gt;
+      &lt;td&gt;$0.010000$&lt;/td&gt;
+      &lt;td&gt;$0.010000$&lt;/td&gt;
+      &lt;td&gt;$0.010000$&lt;/td&gt;
+      &lt;td&gt;$0.000316$&lt;/td&gt;
+      &lt;td&gt;$0.000010$&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;In this post, we covered how to &lt;strong&gt;derive&lt;/strong&gt; the &lt;strong&gt;decay rate&lt;/strong&gt; parameter for &lt;strong&gt;exponential decay function&lt;/strong&gt;. As for the real-world use case, we showed a direct application to &lt;strong&gt;learning rate scheduling&lt;/strong&gt; within the &lt;strong&gt;TensorFlow&lt;/strong&gt; deep learning framework.&lt;/p&gt;</content><author><name></name></author><category term="research" /><summary type="html">A short post regarding exponential learning rate scheduler.</summary></entry><entry><title type="html">My paper “Homography Ranking Based on Multiple Groups of Point Correspondences” is out</title><link href="http://localhost:4000/research/2021/09/08/homography_ranking_paper.html" rel="alternate" type="text/html" title="My paper “Homography Ranking Based on Multiple Groups of Point Correspondences” is out" /><published>2021-09-08T10:00:00+02:00</published><updated>2021-09-08T10:00:00+02:00</updated><id>http://localhost:4000/research/2021/09/08/homography_ranking_paper</id><content type="html" xml:base="http://localhost:4000/research/2021/09/08/homography_ranking_paper.html"># Paper information
+
+* **Name**: [Homography Ranking Based on Multiple Groups of Point Correspondences](https://www.mdpi.com/1424-8220/21/17/5752)
+* **Authors**: Milan Ondrašovič, Peter Tarábek
+* **Journal**: [MDPI Sensors](https://www.mdpi.com/journal/sensors)
+
+# Abstract
+
+*Homography mapping is often exploited to remove perspective distortion in images and can be estimated using point correspondences of a known object (marker). We focus on scenarios with multiple markers placed on the same plane if their relative positions in the world are unknown, causing an indeterminate point correspondence. Existing approaches may only estimate an isolated homography for each marker and cannot determine which homography achieves the best reprojection over the entire image. We thus propose a method to rank isolated homographies obtained from multiple distinct markers to select the best homography. This method extends existing approaches in the post-processing stage, provided that the point correspondences are available and that the markers differ only by similarity transformation after rectification. We demonstrate the robustness of our method using a synthetic dataset and show an approximately 60% relative improvement over the random selection strategy based on the homography estimation from the OpenCV library.*
+
+# Cite my work
+
+## Text format
+
+Ondrašovič, M.; Tarábek, P. *Homography Ranking Based on Multiple Groups of Point Correspondences*. Sensors 2021, 21, 5752. https://doi.org/10.3390/s21175752
+
+## BibText format
+
+
+```
+@Article{s21175752,
     AUTHOR = {Ondrašovič, Milan and Tarábek, Peter},
     TITLE = {Homography Ranking Based on Multiple Groups of Point Correspondences},
     JOURNAL = {Sensors},
@@ -31,27 +189,27 @@
     ABSTRACT = {Homography mapping is often exploited to remove perspective distortion in images and can be estimated using point correspondences of a known object (marker). We focus on scenarios with multiple markers placed on the same plane if their relative positions in the world are unknown, causing an indeterminate point correspondence. Existing approaches may only estimate an isolated homography for each marker and cannot determine which homography achieves the best reprojection over the entire image. We thus propose a method to rank isolated homographies obtained from multiple distinct markers to select the best homography. This method extends existing approaches in the post-processing stage, provided that the point correspondences are available and that the markers differ only by similarity transformation after rectification. We demonstrate the robustness of our method using a synthetic dataset and show an approximately 60% relative improvement over the random selection strategy based on the homography estimation from the OpenCV library.},
     DOI = {10.3390/s21175752}
 }
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name></name></author><category term="research" /><summary type="html">A short post about my recently published MDPI Sensors journal paper.</summary></entry><entry><title type="html">My paper “Siamese Visual Object Tracking - A Survey” is out</title><link href="http://localhost:4000/research/2021/08/16/siamese_tracking_survey_paper.html" rel="alternate" type="text/html" title="My paper “Siamese Visual Object Tracking - A Survey” is out" /><published>2021-08-16T10:00:00+02:00</published><updated>2021-08-16T10:00:00+02:00</updated><id>http://localhost:4000/research/2021/08/16/siamese_tracking_survey_paper</id><content type="html" xml:base="http://localhost:4000/research/2021/08/16/siamese_tracking_survey_paper.html">&lt;h1 id=&quot;paper-information&quot;&gt;Paper information&lt;/h1&gt;
+```</content><author><name></name></author><category term="research" /><summary type="html">A short post about my recently published MDPI Sensors journal paper.</summary></entry><entry><title type="html">My paper “Siamese Visual Object Tracking - A Survey” is out</title><link href="http://localhost:4000/research/2021/08/16/siamese_tracking_survey_paper.html" rel="alternate" type="text/html" title="My paper “Siamese Visual Object Tracking - A Survey” is out" /><published>2021-08-16T10:00:00+02:00</published><updated>2021-08-16T10:00:00+02:00</updated><id>http://localhost:4000/research/2021/08/16/siamese_tracking_survey_paper</id><content type="html" xml:base="http://localhost:4000/research/2021/08/16/siamese_tracking_survey_paper.html"># Paper information
 
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;Name&lt;/strong&gt;: &lt;a href=&quot;https://ieeexplore.ieee.org/document/9503425&quot;&gt;Siamese Visual Object Tracking: A Survey&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Authors&lt;/strong&gt;: Milan Ondrašovič, Peter Tarábek&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Journal&lt;/strong&gt;: &lt;a href=&quot;https://ieeeaccess.ieee.org/&quot;&gt;IEEE Access&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+* **Name**: [Siamese Visual Object Tracking: A Survey](https://ieeexplore.ieee.org/document/9503425)
+* **Authors**: Milan Ondrašovič, Peter Tarábek
+* **Journal**: [IEEE Access](https://ieeeaccess.ieee.org/)
 
-&lt;h1 id=&quot;abstract&quot;&gt;Abstract&lt;/h1&gt;
+# Abstract
 
-&lt;p&gt;&lt;em&gt;Object tracking belongs to active research areas in computer vision. We are interested in matching-based trackers exploiting deep machine learning known as Siamese trackers. Their powerful capabilities stem from similarity learning. This tracking paradigm is promising due to its inherent balance between performance and efficiency, so trackers of this type are suitable for real-time generic object tracking. There is an upsurge in research interest in Siamese trackers and the lack of available specialized surveys in this category. In this survey, we aim to identify and elaborate on the most significant challenges the Siamese trackers face. Our goal is to answer what design decisions the authors made and what problems they attempted to solve in the first place. We thus perform an in-depth analysis of the core principles on which Siamese trackers operate with a discussion of incentives behind them. Besides, we provide an up-to-date qualitative and quantitative comparison of the prominent Siamese trackers on established benchmarks. Among other things, we discuss current trends in developing Siamese trackers. Our survey could help absorb the details about the underlying principles of Siamese trackers and the challenges they face.&lt;/em&gt;&lt;/p&gt;
+*Object tracking belongs to active research areas in computer vision. We are interested in matching-based trackers exploiting deep machine learning known as Siamese trackers. Their powerful capabilities stem from similarity learning. This tracking paradigm is promising due to its inherent balance between performance and efficiency, so trackers of this type are suitable for real-time generic object tracking. There is an upsurge in research interest in Siamese trackers and the lack of available specialized surveys in this category. In this survey, we aim to identify and elaborate on the most significant challenges the Siamese trackers face. Our goal is to answer what design decisions the authors made and what problems they attempted to solve in the first place. We thus perform an in-depth analysis of the core principles on which Siamese trackers operate with a discussion of incentives behind them. Besides, we provide an up-to-date qualitative and quantitative comparison of the prominent Siamese trackers on established benchmarks. Among other things, we discuss current trends in developing Siamese trackers. Our survey could help absorb the details about the underlying principles of Siamese trackers and the challenges they face.*
 
-&lt;h1 id=&quot;cite-my-work&quot;&gt;Cite my work&lt;/h1&gt;
+# Cite my work
 
-&lt;h2 id=&quot;text-format&quot;&gt;Text format&lt;/h2&gt;
+## Text format
 
-&lt;p&gt;M. Ondrašovič and P. Tarábek, “&lt;em&gt;Siamese Visual Object Tracking: A Survey,&lt;/em&gt;” in IEEE Access, vol. 9, pp. 110149-110172, 2021, doi: 10.1109/ACCESS.2021.3101988.&lt;/p&gt;
+M. Ondrašovič and P. Tarábek, &quot;*Siamese Visual Object Tracking: A Survey,*&quot; in IEEE Access, vol. 9, pp. 110149-110172, 2021, doi: 10.1109/ACCESS.2021.3101988.
 
-&lt;h2 id=&quot;bibtext-format&quot;&gt;BibText format&lt;/h2&gt;
+## BibText format
 
-&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;@ARTICLE{9503425,
+
+```
+@ARTICLE{9503425,
     author={Ondrašovič, Milan and Tarábek, Peter},
     journal={IEEE Access}, 
     title={Siamese Visual Object Tracking: A Survey}, 
@@ -61,29 +219,29 @@
     pages={110149-110172},
     doi={10.1109/ACCESS.2021.3101988}
 }
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name></name></author><category term="research" /><summary type="html">A short post about my recently published IEEE Access journal paper.</summary></entry><entry><title type="html">My paper “Object Position Estimation from a Single Moving Camera” is out</title><link href="http://localhost:4000/research/2021/08/15/object_position_estimation_paper.html" rel="alternate" type="text/html" title="My paper “Object Position Estimation from a Single Moving Camera” is out" /><published>2021-08-15T10:00:00+02:00</published><updated>2021-08-15T10:00:00+02:00</updated><id>http://localhost:4000/research/2021/08/15/object_position_estimation_paper</id><content type="html" xml:base="http://localhost:4000/research/2021/08/15/object_position_estimation_paper.html">&lt;h1 id=&quot;paper-information&quot;&gt;Paper information&lt;/h1&gt;
+```</content><author><name></name></author><category term="research" /><summary type="html">A short post about my recently published IEEE Access journal paper.</summary></entry><entry><title type="html">My paper “Object Position Estimation from a Single Moving Camera” is out</title><link href="http://localhost:4000/research/2021/08/15/object_position_estimation_paper.html" rel="alternate" type="text/html" title="My paper “Object Position Estimation from a Single Moving Camera” is out" /><published>2021-08-15T10:00:00+02:00</published><updated>2021-08-15T10:00:00+02:00</updated><id>http://localhost:4000/research/2021/08/15/object_position_estimation_paper</id><content type="html" xml:base="http://localhost:4000/research/2021/08/15/object_position_estimation_paper.html"># Paper information
 
-&lt;ul&gt;
-  &lt;li&gt;&lt;strong&gt;Name&lt;/strong&gt;: &lt;a href=&quot;https://ieeexplore.ieee.org/document/9497523&quot;&gt;Object Position Estimation from a Single Moving Camera&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Authors&lt;/strong&gt;: Milan Ondrašovič, Peter Tarábek, Ondrej Šuch&lt;/li&gt;
-  &lt;li&gt;&lt;strong&gt;Conference&lt;/strong&gt;: &lt;a href=&quot;https://ieeexplore.ieee.org/xpl/conhome/9497502/proceeding&quot;&gt;2021 International Conference on Information and Digital Technologies (IDT)&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+* **Name**: [Object Position Estimation from a Single Moving Camera](https://ieeexplore.ieee.org/document/9497523)
+* **Authors**: Milan Ondrašovič, Peter Tarábek, Ondrej Šuch
+* **Conference**: [2021 International Conference on Information and Digital Technologies (IDT)](https://ieeexplore.ieee.org/xpl/conhome/9497502/proceeding)
 
-&lt;p&gt;Since the article is accessible only for IEEE subscribers, you can &lt;strong&gt;request the full text&lt;/strong&gt; for private use via  &lt;a href=&quot;https://www.researchgate.net/publication/353593977_Object_Position_Estimation_from_a_Single_Moving_Camera?_sg=vX-pKX0KtT6IJMT7V3_vByovw8oz6R072y-D3l7L16aFihTwxFXTdbPDAIID-3Gukfk-Hy-Pa-JLPvKRrq-SbQwjMbrR_ZO4WtmWSAjh.cZv8g4RyJw-RblaqUA1o0UixoOE2qDkHMzhH1ys65uJndVjudgLfI5h9K0KhsQ5sePAKeViB8TMCny-2pVHyQQ&quot;&gt;ResearchGate&lt;/a&gt;.&lt;/p&gt;
+Since the article is accessible only for IEEE subscribers, you can **request the full text** for private use via  [ResearchGate](https://www.researchgate.net/publication/353593977_Object_Position_Estimation_from_a_Single_Moving_Camera?_sg=vX-pKX0KtT6IJMT7V3_vByovw8oz6R072y-D3l7L16aFihTwxFXTdbPDAIID-3Gukfk-Hy-Pa-JLPvKRrq-SbQwjMbrR_ZO4WtmWSAjh.cZv8g4RyJw-RblaqUA1o0UixoOE2qDkHMzhH1ys65uJndVjudgLfI5h9K0KhsQ5sePAKeViB8TMCny-2pVHyQQ).
 
-&lt;h1 id=&quot;abstract&quot;&gt;Abstract&lt;/h1&gt;
+# Abstract
 
-&lt;p&gt;&lt;em&gt;This paper deals with the position estimation of a road sign from a single camera attached to a vehicle. We developed, implemented, and tested two mathematical approaches based on triangulation when the object annotation in the form of a bounding box is provided. We created a synthetic dataset (a simulation of a car passing by a road sign) to test the methods in a controlled environment. Additionally, the real dataset was created by recording a car trip within a town. Results on the synthetic dataset showed that the position could be estimated within 1 m accuracy. In the case of the real dataset, we measured the accuracy to be up to 4.3 m depending on the distance from the object. We performed experiments with artificial noise on synthetic data to evaluate the impact of different types of noise. Our contribution consists of two computationally inexpensive methods for object position estimation that are easy to use as they do not require calibration of parameters.&lt;/em&gt;&lt;/p&gt;
+*This paper deals with the position estimation of a road sign from a single camera attached to a vehicle. We developed, implemented, and tested two mathematical approaches based on triangulation when the object annotation in the form of a bounding box is provided. We created a synthetic dataset (a simulation of a car passing by a road sign) to test the methods in a controlled environment. Additionally, the real dataset was created by recording a car trip within a town. Results on the synthetic dataset showed that the position could be estimated within 1 m accuracy. In the case of the real dataset, we measured the accuracy to be up to 4.3 m depending on the distance from the object. We performed experiments with artificial noise on synthetic data to evaluate the impact of different types of noise. Our contribution consists of two computationally inexpensive methods for object position estimation that are easy to use as they do not require calibration of parameters.*
 
-&lt;h1 id=&quot;cite-my-work&quot;&gt;Cite my work&lt;/h1&gt;
+# Cite my work
 
-&lt;h2 id=&quot;text-format&quot;&gt;Text format&lt;/h2&gt;
+## Text format
 
-&lt;p&gt;M. Ondrašovič, P. Tarábek and O. Šuch, “&lt;em&gt;Object Position Estimation from a Single Moving Camera&lt;/em&gt;,” 2021 International Conference on Information and Digital Technologies (IDT), 2021, pp. 31-37, doi: 10.1109/IDT52577.2021.9497523.&lt;/p&gt;
+M. Ondrašovič, P. Tarábek and O. Šuch, &quot;*Object Position Estimation from a Single Moving Camera*,&quot; 2021 International Conference on Information and Digital Technologies (IDT), 2021, pp. 31-37, doi: 10.1109/IDT52577.2021.9497523.
 
-&lt;h2 id=&quot;bibtext-format&quot;&gt;BibText format&lt;/h2&gt;
+## BibText format
 
-&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;@INPROCEEDINGS{9497523,
+
+```
+@INPROCEEDINGS{9497523,
     author={Ondrašovič, Milan and Tarábek, Peter and Šuch, Ondrej},
     booktitle={2021 International Conference on Information and Digital Technologies (IDT)}, 
     title={Object Position Estimation from a Single Moving Camera}, 
@@ -93,360 +251,357 @@
     pages={31-37},
     doi={10.1109/IDT52577.2021.9497523}
 }
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name></name></author><category term="research" /><summary type="html">A short post about my recently published IDT2021 conference paper.</summary></entry><entry><title type="html">My paper writing pipeline using LaTeX</title><link href="http://localhost:4000/tutorial/2021/08/09/my_paper_writing_pipeline.html" rel="alternate" type="text/html" title="My paper writing pipeline using LaTeX" /><published>2021-08-09T10:00:00+02:00</published><updated>2021-08-09T10:00:00+02:00</updated><id>http://localhost:4000/tutorial/2021/08/09/my_paper_writing_pipeline</id><content type="html" xml:base="http://localhost:4000/tutorial/2021/08/09/my_paper_writing_pipeline.html">&lt;h1 id=&quot;introduction&quot;&gt;Introduction&lt;/h1&gt;
+```</content><author><name></name></author><category term="research" /><summary type="html">A short post about my recently published IDT2021 conference paper.</summary></entry><entry><title type="html">My paper writing pipeline using LaTeX</title><link href="http://localhost:4000/tutorial/2021/08/09/my_paper_writing_pipeline.html" rel="alternate" type="text/html" title="My paper writing pipeline using LaTeX" /><published>2021-08-09T10:00:00+02:00</published><updated>2021-08-09T10:00:00+02:00</updated><id>http://localhost:4000/tutorial/2021/08/09/my_paper_writing_pipeline</id><content type="html" xml:base="http://localhost:4000/tutorial/2021/08/09/my_paper_writing_pipeline.html"># Introduction
 
-&lt;p&gt;In this post, I want to share the pipeline that I use for writing research papers and then discussing them with my Ph.D. supervisor. The primary motivation to write this post and was to make communication with my supervisor who does not use &lt;a href=&quot;https://www.latex-project.org/&quot;&gt;LaTeX&lt;/a&gt; as smooth as possible. He also supervised my bachelor’s as well as master’s theses that I wrote using &lt;a href=&quot;https://www.microsoft.com/sk-sk/microsoft-365/word&quot;&gt;MS Word&lt;/a&gt;. Thanks to the revision system, our discussions about changes were flawless and the whole process was quick. However, since the beginning of my Ph.D. studies in the applied computer science program, I have relied solely on LaTeX to write my papers (for obvious reasons) and to produce the final PDF file. Thus, we ended up adding suggestions, comments, and highlights of modifications to the PDF file itself, which was rather cumbersome. Moreover, little changes in phrasing or just spelling corrections could hardly be caught. This got me thinking about whether there was a revision system for LaTeX that provided at least similar capabilities to MS Word. It turned out, there was such a service as part of paid &lt;a href=&quot;https://www.overleaf.com/&quot;&gt;Overleaf&lt;/a&gt; license, but I wanted something free. To this end, I created my process to circumvent the obstacles of having to highlight changes manually in the PDF file. I managed to resolve the problem of producing &lt;em&gt;diff-like&lt;/em&gt; PDF files based on LaTeX sources completely free and quickly. With this in mind, the main &lt;strong&gt;contribution&lt;/strong&gt; of this tutorial is as follows:&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;I show how to effectively &lt;strong&gt;incorporate &lt;em&gt;diff&lt;/em&gt; mechanism when using&lt;/strong&gt; LaTeX (similar to revision system in MS Word to easily disseminate the modifications with other people, even with the ones who do not use LaTeX by themselves.&lt;/li&gt;
-  &lt;li&gt;I provide an &lt;strong&gt;example of my work pipeline&lt;/strong&gt; for inspiration to see how I approach writing and managing research papers.&lt;/li&gt;
-&lt;/ul&gt;
+In this post, I want to share the pipeline that I use for writing research papers and then discussing them with my Ph.D. supervisor. The primary motivation to write this post and was to make communication with my supervisor who does not use [LaTeX](https://www.latex-project.org/) as smooth as possible. He also supervised my bachelor's as well as master's theses that I wrote using [MS Word](https://www.microsoft.com/sk-sk/microsoft-365/word). Thanks to the revision system, our discussions about changes were flawless and the whole process was quick. However, since the beginning of my Ph.D. studies in the applied computer science program, I have relied solely on LaTeX to write my papers (for obvious reasons) and to produce the final PDF file. Thus, we ended up adding suggestions, comments, and highlights of modifications to the PDF file itself, which was rather cumbersome. Moreover, little changes in phrasing or just spelling corrections could hardly be caught. This got me thinking about whether there was a revision system for LaTeX that provided at least similar capabilities to MS Word. It turned out, there was such a service as part of paid [Overleaf](https://www.overleaf.com/) license, but I wanted something free. To this end, I created my process to circumvent the obstacles of having to highlight changes manually in the PDF file. I managed to resolve the problem of producing *diff-like* PDF files based on LaTeX sources completely free and quickly. With this in mind, the main **contribution** of this tutorial is as follows:
+* I show how to effectively **incorporate *diff* mechanism when using** LaTeX (similar to revision system in MS Word to easily disseminate the modifications with other people, even with the ones who do not use LaTeX by themselves.
+* I provide an **example of my work pipeline** for inspiration to see how I approach writing and managing research papers.
 
-&lt;h1 id=&quot;prerequisites&quot;&gt;Prerequisites&lt;/h1&gt;
+# Prerequisites
 
-&lt;p&gt;I am going to assume that the reader knows how to use LaTeX, either remotely or locally. I think that unless the reader has enough experience with LaTeX, then my motivation and subsequent recommendation would not be fully understood. To make things easier and to describe my current work pipeline, I am going to demonstrate the process using &lt;a href=&quot;https://www.overleaf.com/&quot;&gt;Overleaf&lt;/a&gt;. Even though &lt;a href=&quot;https://www.overleaf.com/&quot;&gt;Overleaf&lt;/a&gt; is a perfect tool for remote work with LaTeX documents, we still need to exploit local applications to produce &lt;em&gt;diff&lt;/em&gt;s.&lt;/p&gt;
+I am going to assume that the reader knows how to use LaTeX, either remotely or locally. I think that unless the reader has enough experience with LaTeX, then my motivation and subsequent recommendation would not be fully understood. To make things easier and to describe my current work pipeline, I am going to demonstrate the process using [Overleaf](https://www.overleaf.com/). Even though [Overleaf](https://www.overleaf.com/) is a perfect tool for remote work with LaTeX documents, we still need to exploit local applications to produce *diff*s.
 
-&lt;p&gt;I recommend the user to install &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;texlive-full&lt;/code&gt;.&lt;/p&gt;
+I recommend the user to install `texlive-full`.
 
-&lt;p&gt;The two tools that we are going to rely on are:&lt;/p&gt;
+The two tools that we are going to rely on are:
 
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://www.ctan.org/pkg/latexpand&quot;&gt;latexpand&lt;/a&gt; - &lt;em&gt;Latexpand&lt;/em&gt; is a Perl script that simply replaces &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;\input&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;\include&lt;/code&gt; commands with the content of the input or included file.&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://www.ctan.org/pkg/latexdiff&quot;&gt;latexdiff&lt;/a&gt; - &lt;em&gt;Latexdiff&lt;/em&gt; is a Perl script for visual mark up and revision of significant differences between two LaTeX files. Various options are available for visual markup using standard LaTeX packages such as color. Changes not directly affecting visible text, for example in formatting commands, are still marked in the LaTeX source. A rudimentary revision facility is provided by another Perl script, latexrevise, which accepts or rejects all changes. Manual editing of the difference file can be used to override this default behavior and accept or reject selected changes only.&lt;/li&gt;
-&lt;/ul&gt;
+* [latexpand](https://www.ctan.org/pkg/latexpand) - *Latexpand* is a Perl script that simply replaces `\input` and `\include` commands with the content of the input or included file.
+* [latexdiff](https://www.ctan.org/pkg/latexdiff) - *Latexdiff* is a Perl script for visual mark up and revision of significant differences between two LaTeX files. Various options are available for visual markup using standard LaTeX packages such as color. Changes not directly affecting visible text, for example in formatting commands, are still marked in the LaTeX source. A rudimentary revision facility is provided by another Perl script, latexrevise, which accepts or rejects all changes. Manual editing of the difference file can be used to override this default behavior and accept or reject selected changes only. 
 
-&lt;h1 id=&quot;work-pipeline-demonstration&quot;&gt;Work Pipeline Demonstration&lt;/h1&gt;
+# Work Pipeline Demonstration
 
-&lt;h2 id=&quot;project-structure&quot;&gt;Project structure&lt;/h2&gt;
+## Project structure
 
-&lt;p&gt;I prefer to separate the contents of the paper into multiple source files. I am a programmer, and I use LaTeX due to its programming-like approach (among other things). I guess separation of concerns and reduction of coupling are well-established manners that programmers should adhere to all the time. Concerning this, I always (give or take) create the following structure:&lt;/p&gt;
+I prefer to separate the contents of the paper into multiple source files. I am a programmer, and I use LaTeX due to its programming-like approach (among other things). I guess separation of concerns and reduction of coupling are well-established manners that programmers should adhere to all the time. Concerning this, I always (give or take) create the following structure:
 
-&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;main.tex
+```
+main.tex
 references.bib
 \sections\introduction.tex
 \sections\related_work.tex
 \sections\methodology.tex
 \sections\experiments.tex
 \sections\conclusion.tex
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+```
 
-&lt;p&gt;The structure would change a little from paper the paper, but you get the gist.&lt;/p&gt;
+The structure would change a little from paper the paper, but you get the gist.
 
-&lt;p&gt;The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;main.tex&lt;/code&gt; file thus contains all these sections included like this:&lt;/p&gt;
+The `main.tex` file thus contains all these sections included like this:
 
-&lt;div class=&quot;language-latex highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;\documentclass&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;[10pt,twocolumn]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;article&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+```latex
+\documentclass[10pt,twocolumn]{article}
 
-&lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;[a4paper,portrait,width=170mm,top=20mm,bottom=20mm]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;geometry&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+\usepackage[a4paper,portrait,width=170mm,top=20mm,bottom=20mm]{geometry}
 
-&lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;graphicx&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+\usepackage{graphicx}
 
-&lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;[numbers]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;natbib&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+\usepackage[numbers]{natbib}
 
-&lt;span class=&quot;c&quot;&gt;% Provides \text{} command in the math mode.&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;amsmath&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+% Provides \text{} command in the math mode.
+\usepackage{amsmath}
 
-&lt;span class=&quot;k&quot;&gt;\renewcommand&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\figurename&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}{&lt;/span&gt;Fig.&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+\renewcommand{\figurename}{Fig.}
 
-&lt;span class=&quot;c&quot;&gt;% To enable \mathbb{} macro and many others.&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;amssymb&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+% To enable \mathbb{} macro and many others.
+\usepackage{amssymb}
 
-&lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;times&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; 
+\usepackage{times} 
 
-&lt;span class=&quot;c&quot;&gt;% To enable \mathbbm{} macro.&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;bbm&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+% To enable \mathbbm{} macro.
+\usepackage{bbm}
 
-&lt;span class=&quot;c&quot;&gt;% Nice fractions formatted as a/b.&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;nicefrac&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+% Nice fractions formatted as a/b.
+\usepackage{nicefrac}
 
-&lt;span class=&quot;c&quot;&gt;% Automatic line breaking of displayed equations.&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;breqn&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+% Automatic line breaking of displayed equations.
+\usepackage{breqn}
 
-&lt;span class=&quot;c&quot;&gt;% Multi-column tables.&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;multicol&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;multirow&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+% Multi-column tables.
+\usepackage{multicol}
+\usepackage{multirow}
 
-&lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;[font={small,it},labelfont=bf]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;caption&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+\usepackage[font={small,it},labelfont=bf]{caption}
 
-&lt;span class=&quot;c&quot;&gt;% Top, middle, and bottom rules in tables.&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;booktabs&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+% Top, middle, and bottom rules in tables.
+\usepackage{booktabs}
 
-&lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;[colorlinks=true,
+\usepackage[colorlinks=true,
             linkcolor=red,
             urlcolor=green,
-            citecolor=blue]&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;hyperref&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+            citecolor=blue]{hyperref}
 
-&lt;span class=&quot;nt&quot;&gt;\begin{document}&lt;/span&gt;
+\begin{document}
 
-&lt;span class=&quot;k&quot;&gt;\title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;Paper title&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\author&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;Author information&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt;
+\title{Paper title}
+\author{Author information}
+\date{}
 
-&lt;span class=&quot;k&quot;&gt;\maketitle&lt;/span&gt;
+\maketitle
 
-&lt;span class=&quot;k&quot;&gt;\input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;sections/introduction&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;sections/related&lt;span class=&quot;p&quot;&gt;_&lt;/span&gt;work&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;sections/methodology&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;sections/experiments&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;sections/conclusion&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+\input{sections/introduction}
+\input{sections/related_work}
+\input{sections/methodology}
+\input{sections/experiments}
+\input{sections/conclusion}
 
-&lt;span class=&quot;k&quot;&gt;\section*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;Acknowledgment&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+\section*{Acknowledgment}
 
-&lt;span class=&quot;k&quot;&gt;\bibliographystyle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;unsrt&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\bibliography&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;references&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+\bibliographystyle{unsrt}
+\bibliography{references}
 
-&lt;span class=&quot;nt&quot;&gt;\end{document}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+\end{document}
+```
 
-&lt;p&gt;Individual files have the following content. For example, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;introduction.tex&lt;/code&gt;:&lt;/p&gt;
+Individual files have the following content. For example, `introduction.tex`:
 
-&lt;div class=&quot;language-latex highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;\section&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;Introduction&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\label&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;sec:introduction&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+```latex
+\section{Introduction}
+\label{sec:introduction}
+```
 
-&lt;p&gt;then &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;related_work.tex&lt;/code&gt;:&lt;/p&gt;
+then `related_work.tex`:
 
-&lt;div class=&quot;language-latex highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;\section&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;Related Work&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\label&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;sec:related&lt;span class=&quot;p&quot;&gt;_&lt;/span&gt;work&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+```latex
+\section{Related Work}
+\label{sec:related_work}
+```
 
-&lt;p&gt;then &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;methodology.tex&lt;/code&gt;:&lt;/p&gt;
+then `methodology.tex`:
 
-&lt;div class=&quot;language-latex highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;\section&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;Methodology&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\label&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;sec:methodology&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+```latex
+\section{Methodology}
+\label{sec:methodology}
+```
 
-&lt;p&gt;then &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;experiments.tex&lt;/code&gt;:&lt;/p&gt;
+then `experiments.tex`:
 
-&lt;div class=&quot;language-latex highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;\section&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;Experiments&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\label&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;sec:experiments&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+```latex
+\section{Experiments}
+\label{sec:experiments}
+```
 
-&lt;p&gt;and the last file &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;conclusion.tex&lt;/code&gt;:&lt;/p&gt;
-&lt;div class=&quot;language-latex highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;\section&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;Conclusion&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\label&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;sec:conclusion&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+and the last file `conclusion.tex`:
+```latex
+\section{Conclusion}
+\label{sec:conclusion}
+```
 
-&lt;p&gt;The reason why I am showing this hierarchy is that to produce the &lt;em&gt;diff&lt;/em&gt; file, the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;latexdiff&lt;/code&gt; command requires the old and the new file. However, we now have multiple files, so we will have to merge them before finding differences. Just for the record, having to produce a single may also be required for certain publications, so that may be one more reason for me to show you a way to do it.&lt;/p&gt;
+The reason why I am showing this hierarchy is that to produce the *diff* file, the `latexdiff` command requires the old and the new file. However, we now have multiple files, so we will have to merge them before finding differences. Just for the record, having to produce a single may also be required for certain publications, so that may be one more reason for me to show you a way to do it.
 
-&lt;h2 id=&quot;merging-files&quot;&gt;Merging files&lt;/h2&gt;
+## Merging files
 
-&lt;p&gt;To produce a single LaTeX file from multiple sub-files, we need to use the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;latexpand&lt;/code&gt; command. The usage is simple. Just provide the name of the root file and every other referred sub-file will be &lt;em&gt;expanded&lt;/em&gt; by the pre-processor. In our case, we may use:&lt;/p&gt;
+To produce a single LaTeX file from multiple sub-files, we need to use the `latexpand` command. The usage is simple. Just provide the name of the root file and every other referred sub-file will be *expanded* by the pre-processor. In our case, we may use:
 
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;latexpand main.tex &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; main_flat.tex
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+```bash
+latexpand main.tex &gt; main_flat.tex
+```
 
-&lt;h2 id=&quot;creating-diff-latex-file&quot;&gt;Creating &lt;em&gt;diff&lt;/em&gt; LaTeX file&lt;/h2&gt;
+## Creating *diff* LaTeX file
 
-&lt;p&gt;To generate the &lt;em&gt;diff&lt;/em&gt;-like LaTeX source file reflecting changes between the two versions of the same document, we will employ &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;latexdiff&lt;/code&gt; utilize as follows:&lt;/p&gt;
+To generate the *diff*-like LaTeX source file reflecting changes between the two versions of the same document, we will employ `latexdiff` utilize as follows:
 
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;latexdiff main_orig_flat.tex main_new_flat.tex &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; main_diff.tex
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+```bash
+latexdiff main_orig_flat.tex main_new_flat.tex &gt; main_diff.tex
+```
 
-&lt;p&gt;It takes two files, the &lt;em&gt;old&lt;/em&gt; and the &lt;em&gt;new&lt;/em&gt; version of the document, and produces the &lt;em&gt;diff&lt;/em&gt;-like output. As you can see, we may only provide two source files. That’s why we have to merge sub-files (see the previous step for details).&lt;/p&gt;
+It takes two files, the *old* and the *new* version of the document, and produces the *diff*-like output. As you can see, we may only provide two source files. That's why we have to merge sub-files (see the previous step for details).
 
-&lt;p&gt;At some point, I had trouble with generating the &lt;em&gt;diff&lt;/em&gt; file when I made certain changes in tables and figures. To remedy this, try:&lt;/p&gt;
+At some point, I had trouble with generating the *diff* file when I made certain changes in tables and figures. To remedy this, try:
 
-&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;latexdiff --config=&quot;PICTUREENV=(?:picture|DIFnomarkup|align|tabular)[\w\d*@]*&quot; main_orig_flat.tex main_new_flat.tex &amp;gt; main_diff.tex
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+```
+latexdiff --config=&quot;PICTUREENV=(?:picture|DIFnomarkup|align|tabular)[\w\d*@]*&quot; main_orig_flat.tex main_new_flat.tex &gt; main_diff.tex
+```
 
-&lt;h2 id=&quot;putting-it-all-together&quot;&gt;Putting it all together&lt;/h2&gt;
 
-&lt;p&gt;Here is the script (I named it &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;diff_paper_latex.tex&lt;/code&gt;) that can produce the &lt;em&gt;diff&lt;/em&gt;-like LaTeX source file between two versions of the same LaTeX document.&lt;/p&gt;
+## Putting it all together
 
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#!/usr/bin/bash&lt;/span&gt;
+Here is the script (I named it `diff_paper_latex.tex`) that can produce the *diff*-like LaTeX source file between two versions of the same LaTeX document.
 
-&lt;span class=&quot;nb&quot;&gt;mkdir&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$3&lt;/span&gt;
+```bash
+#!/usr/bin/bash
 
-&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$1&lt;/span&gt;
-latexpand main.tex &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; ../&lt;span class=&quot;nv&quot;&gt;$3&lt;/span&gt;/main_orig_flat.tex
-&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; ..
+mkdir -p $3
 
-&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$2&lt;/span&gt;
-latexpand main.tex &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; ../&lt;span class=&quot;nv&quot;&gt;$3&lt;/span&gt;/main_new_flat.tex
-&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; ..
+cd $1
+latexpand main.tex &gt; ../$3/main_orig_flat.tex
+cd ..
 
-&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$3&lt;/span&gt;
-latexdiff &lt;span class=&quot;nt&quot;&gt;--config&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;PICTUREENV=(?:picture|DIFnomarkup|align|tabular)[&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\w\d&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;*@]*&quot;&lt;/span&gt; main_orig_flat.tex main_new_flat.tex &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; main_diff.tex
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+cd $2
+latexpand main.tex &gt; ../$3/main_new_flat.tex
+cd ..
 
-&lt;p&gt;The script requires the names of three directories. The first is the directory of the old document version that contains the main.tex file. The second directory is the corresponding new version of the same document. The third document is the output directory into which the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;main_diff.tex&lt;/code&gt; file will be saved (besides the two auxiliary files). The script may be executed as follows:&lt;/p&gt;
+cd $3
+latexdiff --config=&quot;PICTUREENV=(?:picture|DIFnomarkup|align|tabular)[\w\d*@]*&quot; main_orig_flat.tex main_new_flat.tex &gt; main_diff.tex
+```
 
-&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;./diff_paper_latex.sh paper_version_old paper_version_new paper_version_diff
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+The script requires the names of three directories. The first is the directory of the old document version that contains the main.tex file. The second directory is the corresponding new version of the same document. The third document is the output directory into which the `main_diff.tex` file will be saved (besides the two auxiliary files). The script may be executed as follows:
 
-&lt;p&gt;After this step, all that remains is to grab the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;main_diff.tex&lt;/code&gt; file and either compile it locally or put it into some remote server (e.g., Overleaf) to show it there. It is a regular LaTeX file as any other, thus one may incorporate it into the existing compilation pipeline easily.&lt;/p&gt;
+```
+./diff_paper_latex.sh paper_version_old paper_version_new paper_version_diff
+```
 
-&lt;h1 id=&quot;example&quot;&gt;Example&lt;/h1&gt;
+After this step, all that remains is to grab the `main_diff.tex` file and either compile it locally or put it into some remote server (e.g., Overleaf) to show it there. It is a regular LaTeX file as any other, thus one may incorporate it into the existing compilation pipeline easily.
 
-&lt;p&gt;For simplicity’s sake, assume that we have two versions of the same LaTeX document contained only in a single source file. The content of the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;main_orig.tex&lt;/code&gt; file is:&lt;/p&gt;
+# Example
 
-&lt;div class=&quot;language-latex highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;\documentclass&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;article&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;[utf8]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;inputenc&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+For simplicity's sake, assume that we have two versions of the same LaTeX document contained only in a single source file. The content of the `main_orig.tex` file is:
 
-&lt;span class=&quot;k&quot;&gt;\pagenumbering&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;gobble&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+```latex
+\documentclass{article}
+\usepackage[utf8]{inputenc}
 
-&lt;span class=&quot;k&quot;&gt;\title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;Sample Document&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;August 2021&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+\pagenumbering{gobble}
 
-&lt;span class=&quot;nt&quot;&gt;\begin{document}&lt;/span&gt;
+\title{Sample Document}
+\date{August 2021}
 
-&lt;span class=&quot;k&quot;&gt;\maketitle&lt;/span&gt;
+\begin{document}
 
-&lt;span class=&quot;k&quot;&gt;\section&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;Introduction&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+\maketitle
+
+\section{Introduction}
 
 Here is a short sentence in the introduction. This sentence will be removed in the new version. And another sentence will be appended after this one. Stay tuned!
 
-&lt;span class=&quot;nt&quot;&gt;\end{document}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+\end{document}
+```
 
-&lt;p&gt;whereas the content of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;main_new.tex&lt;/code&gt; conveys the changes shown below:&lt;/p&gt;
+whereas the content of `main_new.tex` conveys the changes shown below:
 
-&lt;div class=&quot;language-latex highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;\documentclass&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;article&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;[utf8]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;inputenc&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+```latex
+\documentclass{article}
+\usepackage[utf8]{inputenc}
 
-&lt;span class=&quot;k&quot;&gt;\pagenumbering&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;gobble&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+\pagenumbering{gobble}
 
-&lt;span class=&quot;k&quot;&gt;\title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;Sample Document&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;August 2021&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+\title{Sample Document}
+\date{August 2021}
 
-&lt;span class=&quot;nt&quot;&gt;\begin{document}&lt;/span&gt;
+\begin{document}
 
-&lt;span class=&quot;k&quot;&gt;\maketitle&lt;/span&gt;
+\maketitle
 
-&lt;span class=&quot;k&quot;&gt;\section&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;Introduction&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+\section{Introduction}
 
 Here is a short sentence in the introduction. And another sentence will be appended after this one. New content has been inserted into the document. Stay tuned!
 
-&lt;span class=&quot;k&quot;&gt;\
+\
 
-\noindent&lt;/span&gt; Thanks for reading!
+\noindent Thanks for reading!
 
-&lt;span class=&quot;nt&quot;&gt;\end{document}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+\end{document}
+```
 
-&lt;p&gt;The corresponding produced &lt;em&gt;diff&lt;/em&gt;-like LaTeX source file looks like this (the default definitions were stripped for clarity - but you get the idea):&lt;/p&gt;
+The corresponding produced *diff*-like LaTeX source file looks like this (the default definitions were stripped for clarity - but you get the idea):
 
-&lt;div class=&quot;language-latex highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;\documentclass&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;article&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;c&quot;&gt;%DIF LATEXDIFF DIFFERENCE FILE&lt;/span&gt;
-&lt;span class=&quot;c&quot;&gt;%DIF DEL main_orig.tex   Mon Aug 16 09:52:34 2021&lt;/span&gt;
-&lt;span class=&quot;c&quot;&gt;%DIF ADD main_new.tex    Mon Aug 16 09:52:34 2021&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\usepackage&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;[utf8]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;inputenc&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+```latex
+\documentclass{article}
+%DIF LATEXDIFF DIFFERENCE FILE
+%DIF DEL main_orig.tex   Mon Aug 16 09:52:34 2021
+%DIF ADD main_new.tex    Mon Aug 16 09:52:34 2021
+\usepackage[utf8]{inputenc}
 
-&lt;span class=&quot;k&quot;&gt;\pagenumbering&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;gobble&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+\pagenumbering{gobble}
 
-&lt;span class=&quot;k&quot;&gt;\title&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;Sample Document&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;\date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;August 2021&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+\title{Sample Document}
+\date{August 2021}
 
-&lt;span class=&quot;c&quot;&gt;% !!! HERE WOULD BE A LIST OF AUTOMATICALLY GENERATED DEFINITIONS BY THE LATEXDIFF TOOL.&lt;/span&gt;
+% !!! HERE WOULD BE A LIST OF AUTOMATICALLY GENERATED DEFINITIONS BY THE LATEXDIFF TOOL.
 
-&lt;span class=&quot;nt&quot;&gt;\begin{document}&lt;/span&gt;
+\begin{document}
 
-&lt;span class=&quot;k&quot;&gt;\maketitle&lt;/span&gt;
+\maketitle
 
-&lt;span class=&quot;k&quot;&gt;\section&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;Introduction&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+\section{Introduction}
 
-Here is a short sentence in the introduction.&lt;span class=&quot;k&quot;&gt;\DIFdelbegin&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;\DIFdel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;This sentence will be removed in the new version. &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\DIFdelend&lt;/span&gt; And another sentence will be appended after this one. &lt;span class=&quot;k&quot;&gt;\DIFdelbegin&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;\DIFdel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;Stay tuned&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\DIFdelend&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;\DIFaddbegin&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;\DIFadd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;A new content has been inserted into the document. Stay tuned!
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+Here is a short sentence in the introduction.\DIFdelbegin \DIFdel{This sentence will be removed in the new version. }\DIFdelend And another sentence will be appended after this one. \DIFdelbegin \DIFdel{Stay tuned}\DIFdelend \DIFaddbegin \DIFadd{A new content has been inserted into the document. Stay tuned!
+}
 
-&lt;span class=&quot;k&quot;&gt;\DIFadd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\
-&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+\DIFadd{\
+}
 
-&lt;span class=&quot;k&quot;&gt;\noindent&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;\DIFadd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;Thanks for reading&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;\DIFaddend&lt;/span&gt; !
+\noindent \DIFadd{Thanks for reading}\DIFaddend !
 
-&lt;span class=&quot;nt&quot;&gt;\end{document}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+\end{document}
+```
 
-&lt;p&gt;When compiled and rendered, we have a nice looking PDF. To demonstrate, here we have the three files in the same order rendered:&lt;/p&gt;
+When compiled and rendered, we have a nice looking PDF. To demonstrate, here we have the three files in the same order rendered:
 
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/images/document_render_orig.jpg&quot; alt=&quot;original-LaTeX-document&quot; class=&quot;img-responsive&quot; /&gt;&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;em&gt;Original LaTeX document.&lt;/em&gt;&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
+| ![original-LaTeX-document]({{ site.baseurl }}/images/document_render_orig.jpg){:class=&quot;img-responsive&quot;} |
+|:--:|
+| *Original LaTeX document.* |
 
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/images/document_render_new.jpg&quot; alt=&quot;new-LaTeX-document&quot; class=&quot;img-responsive&quot; /&gt;&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;em&gt;New (modified) LaTeX document.&lt;/em&gt;&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
+| ![new-LaTeX-document]({{ site.baseurl }}/images/document_render_new.jpg){:class=&quot;img-responsive&quot;} |
+|:--:|
+| *New (modified) LaTeX document.* |
 
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;/images/document_render_diff.jpg&quot; alt=&quot;diff-LaTeX-document&quot; class=&quot;img-responsive&quot; /&gt;&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;em&gt;Diff-like LaTeX document for revision.&lt;/em&gt;&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
+| ![diff-LaTeX-document]({{ site.baseurl }}/images/document_render_diff.jpg){:class=&quot;img-responsive&quot;} |
+|:--:|
+| *Diff-like LaTeX document for revision.* |
 
-&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
+# Conclusion
 
-&lt;p&gt;I hope that the process described above was easy to comprehend and that you learned something. To my mind, having mastered LaTeX is a must on a personal level if someone wants to quickly write technical research papers. But still, not everyone shares this view. Each to their own. To find some common ground between the MS Word and LaTeX world, I think that working on the level of PDF file carrying annotations depicting differences makes the communication between co-authors or article reviewers much faster. I tried it personally. I suggest you try it for yourself, too.&lt;/p&gt;</content><author><name></name></author><category term="tutorial" /><summary type="html">In this post, I show how I approach writing research papers using LaTeX.</summary></entry><entry><title type="html">Formula for expanding a^n - b^n.</title><link href="http://localhost:4000/math/2021/05/04/an_minus_bn_formula.html" rel="alternate" type="text/html" title="Formula for expanding a^n - b^n." /><published>2021-05-04T11:00:00+02:00</published><updated>2021-05-04T11:00:00+02:00</updated><id>http://localhost:4000/math/2021/05/04/an_minus_bn_formula</id><content type="html" xml:base="http://localhost:4000/math/2021/05/04/an_minus_bn_formula.html">&lt;p&gt;Today, I came across the following formula:&lt;/p&gt;
+I hope that the process described above was easy to comprehend and that you learned something. To my mind, having mastered LaTeX is a must on a personal level if someone wants to quickly write technical research papers. But still, not everyone shares this view. Each to their own. To find some common ground between the MS Word and LaTeX world, I think that working on the level of PDF file carrying annotations depicting differences makes the communication between co-authors or article reviewers much faster. I tried it personally. I suggest you try it for yourself, too.</content><author><name></name></author><category term="tutorial" /><summary type="html">In this post, I show how I approach writing research papers using LaTeX.</summary></entry><entry><title type="html">Formula for expanding a^n - b^n.</title><link href="http://localhost:4000/math/2021/05/04/an_minus_bn_formula.html" rel="alternate" type="text/html" title="Formula for expanding a^n - b^n." /><published>2021-05-04T11:00:00+02:00</published><updated>2021-05-04T11:00:00+02:00</updated><id>http://localhost:4000/math/2021/05/04/an_minus_bn_formula</id><content type="html" xml:base="http://localhost:4000/math/2021/05/04/an_minus_bn_formula.html">Today, I came across the following formula:
 
-\[a^n - b^n = \left( a - b \right) \left( a^{n - 1} + a^{n - 2}b + a^{n - 3}b^2 + \dots + a^2b^{n - 3} + ab^{n - 1} + b^{n - 1} \right).\]
+$$
+a^n - b^n = \left( a - b \right) \left( a^{n - 1} + a^{n - 2}b + a^{n - 3}b^2 + \dots + a^2b^{n - 3} + ab^{n - 1} + b^{n - 1} \right).
+$$
 
-&lt;p&gt;Or, expressed more compactly:&lt;/p&gt;
+Or, expressed more compactly:
 
-\[a^n - b^n = \left( a - b \right) \sum_{k = 0}^{n - 1} a^{\left( n - 1\right) - k} b^k.\]
+$$
+a^n - b^n = \left( a - b \right) \sum_{k = 0}^{n - 1} a^{\left( n - 1\right) - k} b^k.
+$$
 
-&lt;p&gt;My immediate thought was to figure out how someone could have had come up with that formula in the first place. After pondering about it a little bit, I learned about the derivation described below.&lt;/p&gt;
+My immediate thought was to figure out how someone could have had come up with that formula in the first place. After pondering about it a little bit, I learned about the derivation described below.
 
-&lt;p&gt;Allegedly, one way to derive this expansion is to think about the sum of the geometric series. As a reminder, here we have the well-known formula for the sum of the first \(n\) terms of geometric series:&lt;/p&gt;
+Allegedly, one way to derive this expansion is to think about the sum of the geometric series. As a reminder, here we have the well-known formula for the sum of the first $$n$$ terms of geometric series:
 
-\[S_n = 1 + x + x^2 + x^3 + \dots + x^{n - 1} + x^{n} = \frac{1 - q^{n + 1}}{1 - q}.\]
+$$
+S_n = 1 + x + x^2 + x^3 + \dots + x^{n - 1} + x^{n} = \frac{1 - q^{n + 1}}{1 - q}.
+$$
 
-&lt;p&gt;The key idea to producing the formula for expanding the expression \(a^n - b^n\) is to derive the formula for the sum of geometric series since it mysteriously involves a similar-looking \(1 - x^n\) term.&lt;/p&gt;
+The key idea to producing the formula for expanding the expression $$a^n - b^n$$ is to derive the formula for the sum of geometric series since it mysteriously involves a similar-looking $$1 - x^n$$ term.
 
-&lt;p&gt;With this in mind, let’s start. I will use the standard trick of having the original sum multiplied by \(x\) and subtracted the resulting series from the original. To demonstrate, assume&lt;/p&gt;
+With this in mind, let's start. I will use the standard trick of having the original sum multiplied by $$x$$ and subtracted the resulting series from the original. To demonstrate, assume
 
-\[\begin{aligned}
-&amp;amp;S = 1 + x + x^2 + x^3 + \dots + x^{n - 1},\\
+$$
+\begin{aligned}
+&amp;S = 1 + x + x^2 + x^3 + \dots + x^{n - 1},\\
 
-&amp;amp;xS = x + x^2 + x^3 + \dots + x^{n - 1} + x^n.
-\end{aligned}\]
+&amp;xS = x + x^2 + x^3 + \dots + x^{n - 1} + x^n.
+\end{aligned}
+$$
 
-&lt;p&gt;Now, subtracting the second equation from the first yields&lt;/p&gt;
+Now, subtracting the second equation from the first yields
 
-\[\begin{aligned}
-&amp;amp;S - Sx = 1 + \left( x - x \right) + \left( x^2 - x^2 \right) + \dots + \left( x^{n - 1} - x^{n - 1} \right) - x^n,\\
+$$
+\begin{aligned}
+&amp;S - Sx = 1 + \left( x - x \right) + \left( x^2 - x^2 \right) + \dots + \left( x^{n - 1} - x^{n - 1} \right) - x^n,\\
 
-&amp;amp;S - Sx = 1 - x^n,\\
+&amp;S - Sx = 1 - x^n,\\
 
-&amp;amp;S \left( 1 - x \right) = 1 - x^n.
-\end{aligned}\]
+&amp;S \left( 1 - x \right) = 1 - x^n.
+\end{aligned}
+$$
 
-&lt;p&gt;When we substitute the value of \(S\) into the last equation, we get&lt;/p&gt;
+When we substitute the value of $$S$$ into the last equation, we get
 
-\[\left( 1 + x + x^2 + x^3 + \dots + x^{n - 1} \right) \left( 1 - x \right) = 1 - x^n.\]
+$$
+\left( 1 + x + x^2 + x^3 + \dots + x^{n - 1} \right) \left( 1 - x \right) = 1 - x^n.
+$$
 
-&lt;p&gt;At this point, our expression starts to become very similar to our ultimate goal stated at the beginning. However, there is still one more substitution to be done before pure algebraic manipulations come into place. Admittedly, I could not come up with this substitution quickly by myself. The truth is, I did not try for too long, but still, I feel that ideas of this type are one of my weaknesses. I reckon it takes a little bit of insight into the problem itself and a good deal of creativity. Nevertheless, for the sake of learning, I consider the solution to be generally applicable. Always keep asking yourself where you want to get in the end, whether it is proving a theorem or just solving a problem. Keep in mind that substitution is a reasonable approach to take. Remember how integration may be simplified using substitution. Speaking of integration, a change in coordinates comes to mind, too. Trigonometric equations are also often tackled with substitution. I remember that I have encountered many times how substitution did the trick. I look at this problem through a similar lens. So, what should we substitute for \(x\), then? Think of it this way. We want to transform the expression \(1 - x^n\) into \(a^n - b^n\). Thus, let’s go with \(x = \frac{b}{a}\), which produces&lt;/p&gt;
+At this point, our expression starts to become very similar to our ultimate goal stated at the beginning. However, there is still one more substitution to be done before pure algebraic manipulations come into place. Admittedly, I could not come up with this substitution quickly by myself. The truth is, I did not try for too long, but still, I feel that ideas of this type are one of my weaknesses. I reckon it takes a little bit of insight into the problem itself and a good deal of creativity. Nevertheless, for the sake of learning, I consider the solution to be generally applicable. Always keep asking yourself where you want to get in the end, whether it is proving a theorem or just solving a problem. Keep in mind that substitution is a reasonable approach to take. Remember how integration may be simplified using substitution. Speaking of integration, a change in coordinates comes to mind, too. Trigonometric equations are also often tackled with substitution. I remember that I have encountered many times how substitution did the trick. I look at this problem through a similar lens. So, what should we substitute for $$x$$, then? Think of it this way. We want to transform the expression $$1 - x^n$$ into $$a^n - b^n$$. Thus, let's go with $$x = \frac{b}{a}$$, which produces
 
-\[\begin{aligned}
+$$\begin{aligned}
 \left[ 1 + \frac{b}{a} + {\left( \frac{b}{a} \right) }^2 + {\left( \frac{b}{a} \right) }^3 + \dots + {\left( \frac{b}{a} \right) }^{n - 1} \right] \left( 1 - {\frac{b}{a}} \right) = 1 - {\left( \frac{b}{a} \right) }^n,\\
 
 \left( 1 + \frac{b}{a} + \frac{b^2}{a^2} + \frac{b^3}{a^3} + \dots + \frac{b^{n - 1}}{a^{n - 1}} \right) \left( 1 - {\frac{b}{a}} \right) = 1 - \frac{b^n}{a^n}.\\
-\end{aligned}\]
+\end{aligned}$$
 
-&lt;p&gt;Now, multiply both sides of the last equation by \(a^n\) and further manipulate the equality as follows:&lt;/p&gt;
+Now, multiply both sides of the last equation by $$a^n$$ and further manipulate the equality as follows:
 
-\[\begin{aligned}
+$$\begin{aligned}
 a^n \left( 1 - {\frac{b}{a}} \right) \left( 1 + \frac{b}{a} + \frac{b^2}{a^2} + \frac{b^3}{a^3} + \dots + \frac{b^{n - 1}}{a^{n - 1}} \right) = a^n - b^n,\\
 
 \left( a^n - a^{n - 1}b \right) \left( 1 + \frac{b}{a} + \frac{b^2}{a^2} + \frac{b^3}{a^3} + \dots + \frac{b^{n - 1}}{a^{n - 1}} \right) = a^n - b^n,\\
@@ -458,6 +613,6 @@ a^{n - 1} \left( a - b \right) \left( 1 + \frac{b}{a} + \frac{b^2}{a^2} + \frac{
 \left( a - b \right)  \left( a^{n - 1} + a^{n - 1}\frac{b}{a} + a^{n - 1}\frac{b^2}{a^2} + a^{n - 1}\frac{b^3}{a^3} + \dots + a^{n - 1}\frac{b^{n - 1}}{a^{n - 1}} \right) = a^n - b^n,\\
 
 \left( a - b \right)  \left( a^{n - 1} + a^{n - 2}b + a^{n - 3}b^2 + a^{n - 4}b^3 + \dots + b^{n - 1} \right) = a^n - b^n.\\
-\end{aligned}\]
+\end{aligned}$$
 
-&lt;p&gt;This problem reminds me of one talk by Simon Sinek regarding how people cannot ignore the negative (&lt;a href=&quot;https://www.youtube.com/watch?v=W05FYkqv7hM&quot;&gt;see here&lt;/a&gt;). Let me elaborate. He started to talk by showing that people cannot avoid thinking of an elephant when told: “&lt;em&gt;do not think of an elephant&lt;/em&gt;.” Later on, he expanded on this idea by discussing how skiers should not focus on “&lt;em&gt;not hitting the trees&lt;/em&gt;” but they should focus on “staying on the path.” In essence, I have encountered something similar with this problem as well. Just focusing on where I want to get in the end seems to be sufficient to guide me through the whole derivation of this formula. I do hope I will be able to recreate this in several months without brushing up!&lt;/p&gt;</content><author><name></name></author><category term="math" /><summary type="html">In this post, I show how to derive a formula for expanding a^n - b^n.</summary></entry></feed>
+This problem reminds me of one talk by Simon Sinek regarding how people cannot ignore the negative ([see here](https://www.youtube.com/watch?v=W05FYkqv7hM)). Let me elaborate. He started to talk by showing that people cannot avoid thinking of an elephant when told: &quot;*do not think of an elephant*.&quot; Later on, he expanded on this idea by discussing how skiers should not focus on &quot;*not hitting the trees*&quot; but they should focus on &quot;staying on the path.&quot; In essence, I have encountered something similar with this problem as well. Just focusing on where I want to get in the end seems to be sufficient to guide me through the whole derivation of this formula. I do hope I will be able to recreate this in several months without brushing up!</content><author><name></name></author><category term="math" /><summary type="html">In this post, I show how to derive a formula for expanding a^n - b^n.</summary></entry></feed>

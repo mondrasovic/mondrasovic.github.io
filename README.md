@@ -4,13 +4,19 @@
 
 Install **jekyll**:
 ```
-apt-get -y install ruby-full build-essential make
+sudo apt-get -y install ruby-full build-essential make
 ```
 
 Install **bundler**:
 ```
-gem install jekyll bundler
+sudo gem install jekyll bundler
 ```
+
+Installing the necessary packages, run
+```
+bundle install
+```
+in the project root directory where `Gemfile` is located.
 
 ## MathJax
 
@@ -32,4 +38,14 @@ to each post where the **MathJax** should be enabled.
 Shows the path where the **minima** theme is installed.
 ```
 bundle info --path minima
+```
+
+Serving the application.
+```
+bundle exec jekyll serve
+```
+
+Serving the application with on-the-fly reloading turned on.
+```
+bundle exec jekyll serve --livereload
 ```

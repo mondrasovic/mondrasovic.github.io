@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-01-22T10:01:14+00:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">MOnd Blog</title><subtitle>Personal blog about computer vision, deep learning, math, and some random stuff, too.</subtitle><entry><title type="html">TH - A fabricated hard-to-pronounce story</title><link href="http://localhost:4000/english/2023/01/22/TH.html" rel="alternate" type="text/html" title="TH - A fabricated hard-to-pronounce story" /><published>2023-01-22T07:00:00+00:00</published><updated>2023-01-22T07:00:00+00:00</updated><id>http://localhost:4000/english/2023/01/22/TH</id><content type="html" xml:base="http://localhost:4000/english/2023/01/22/TH.html">&lt;h1 id=&quot;motivation&quot;&gt;Motivation&lt;/h1&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2023-01-22T13:49:05+00:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">MOnd Blog</title><subtitle>Personal blog about computer vision, deep learning, math, and some random stuff, too.</subtitle><entry><title type="html">TH - A fabricated hard-to-pronounce story</title><link href="http://localhost:4000/english/2023/01/22/TH.html" rel="alternate" type="text/html" title="TH - A fabricated hard-to-pronounce story" /><published>2023-01-22T07:00:00+00:00</published><updated>2023-01-22T07:00:00+00:00</updated><id>http://localhost:4000/english/2023/01/22/TH</id><content type="html" xml:base="http://localhost:4000/english/2023/01/22/TH.html">&lt;h1 id=&quot;motivation&quot;&gt;Motivation&lt;/h1&gt;
 
 &lt;p&gt;Since I am a Slovakian, my native tongue does not have the &lt;strong&gt;&lt;em&gt;TH&lt;/em&gt; sound&lt;/strong&gt; that is &lt;strong&gt;ubiquitous in English&lt;/strong&gt; in the pronunciation repertoire. As a result, when learning the English language, it is of paramount importance to master both the voiced the unvoiced variation of the &lt;strong&gt;&lt;em&gt;TH&lt;/em&gt;&lt;/strong&gt; to significantly enhance how the speaker sounds. Even though it is not a panacea for everything, especially if the endeavor is to suppress the underlying accent, it is, by all means, a substantial leap forward to achieving more pleasant speaking experience.&lt;/p&gt;
 
@@ -294,7 +294,7 @@ Guido von Rossum (66)
 
 &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Geoffrey Hinton, 75 years old
 Geoffrey Hinton, 75 years old
-Person(&apos;Geoffrey Hinton&apos;, 75)
+Person('Geoffrey Hinton', 75)
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;To demonstrate the &lt;strong&gt;purpose&lt;/strong&gt; of the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;__repr__&lt;/code&gt; method, the expression it produces should be &lt;strong&gt;sufficient&lt;/strong&gt; to construct the object &lt;strong&gt;from scratch&lt;/strong&gt; when &lt;strong&gt;evaluated&lt;/strong&gt; (using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;eval&lt;/code&gt;), so…&lt;/p&gt;
@@ -308,7 +308,7 @@ Person(&apos;Geoffrey Hinton&apos;, 75)
 
 &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Geoffrey Hinton, 75 years old
 Geoffrey Hinton, 75 years old
-Person(&apos;Geoffrey Hinton&apos;, 75)
+Person('Geoffrey Hinton', 75)
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;h2 id=&quot;advanced-formatting&quot;&gt;Advanced formatting&lt;/h2&gt;
@@ -326,7 +326,7 @@ Person(&apos;Geoffrey Hinton&apos;, 75)
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;diamonds (♦), clubs (♣), hearts (♥) and spades (♠)
-&apos;diamonds (\u2666), clubs (\u2663), hearts (\u2665) and spades (\u2660)&apos;
+'diamonds (\u2666), clubs (\u2663), hearts (\u2665) and spades (\u2660)'
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;h3 id=&quot;expression-representation&quot;&gt;Expression Representation&lt;/h3&gt;
@@ -395,10 +395,10 @@ total % 3 = 1
 
 &lt;span class=&quot;n&quot;&gt;curr_time&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;datetime&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;datetime&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;now&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
 
-&lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;sa&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Today&apos;s date is: &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;curr_time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/%&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/%&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Y&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;# Day, month, and year.
+&lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;sa&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Today's date is: &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;curr_time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/%&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/%&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Y&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;# Day, month, and year.
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Today&apos;s date is: 10/01/2023.
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Today's date is: 10/01/2023.
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;h1 id=&quot;templates&quot;&gt;Templates&lt;/h1&gt;

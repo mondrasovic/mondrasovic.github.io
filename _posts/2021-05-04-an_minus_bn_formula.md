@@ -3,7 +3,7 @@ layout: post
 use_mathjax: true
 title: Formula for expanding a^n - b^n.
 date: 2021-05-04 10:00:00 +0100
-categories: [math]
+categories: [mathematics]
 excerpt: In this post, I show how to derive a formula for expanding a^n - b^n.
 ---
 

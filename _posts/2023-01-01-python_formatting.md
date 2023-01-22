@@ -3,7 +3,7 @@ layout: post
 use_mathjax: true
 title: Output Formatting In Python
 date: 2023-01-01 08:00:00 +0100
-categories: [research]
+categories: [programming]
 excerpt: A brief elaboration on various approaches to output formatting in Python.
 ---
 

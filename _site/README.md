@@ -49,3 +49,8 @@ Serving the application with on-the-fly reloading turned on.
 ```
 bundle exec jekyll serve --livereload
 ```
+
+When serving the site inside a Docker image, specifying the host network is useful, i.e.:
+```
+bundle exec jekyll serve --host 0.0.0.0 --livereload
+```
